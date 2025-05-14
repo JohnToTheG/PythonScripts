@@ -1,0 +1,98 @@
+#John Garibay
+
+#A dictionary for the Texas Juan Chronicles: Hollow of Eternity Game
+#The dictionary links a room to other rooms.
+rooms = {
+        'Hollow of Eternity Entrance': {'North': 'Chamber of Whispering Echoes', 'South': 'The Trial of Silence','East': 'The Altar of Bone and Flame','West': 'The Mirror Vault'},
+        'Chamber of Whispering Echoes': {'South': 'Hollow of Eternity Entrance', 'East': 'The Celestial Mechanism', 'item': 'Revolver'},
+        'The Celestial Mechanism': {'West': 'Chamber of Whispering Echoes', 'item': 'Cowboy Hat'},
+        'The Mirror Vault': {'East': 'Hollow of Eternity Entrance', 'item': 'Whip'},
+        'The Trial of Silence': {'North': 'Hollow of Eternity Entrance', 'East': 'Vault of the Last Flame', 'item': 'Holy Grail'},
+        'Vault of the Last Flame': {'West': 'The Trial of Silence', 'item': 'Ark of the Covenant'},
+        'The Altar of Bone and Flame': {'West': 'Hollow of Eternity Entrance', 'North': 'The Hall of Chains', 'item': 'Skull of Akator'},
+        'The Hall of Chains': {'South': 'The Altar of Bone and Flame', 'Villain': 'Victor Malvado'}
+    }
+
+#added intro and explanation to show_instructions function
+def show_instructions():
+    print('Welcome to the Texas Juan Chronicles: Hollow of Eternity Game')
+    print('You have fallen into the cave Hollow of Eternity.\nCollect your lost items and Sacred Artifacts before the Evil Villain Victor Malvado finds you.\nCollect all 6 items to win the game, or be destroyed by Victor.')
+    print('-------------------------------------------------------------------------------------------------')
+    print('See Instructions to the Game below:')
+    print('Move commands: go South, go North, go East, go West')
+    print('Add to Inventory: get ''item name''')
+    print('Type Exit to quit the game')
+show_instructions()
+
+def player_status():
+    print(f"Inventory: {inventory}")
+
+#setting current room and beginning game
+current_room = 'Hollow of Eternity Entrance'
+inventory = []
+print('If you are ready, enter Start to begin')
+
+#Player enters start to begin game
+start_game = input().title()
+while start_game != 'Start':
+    print('Please Enter Start to begin')
+    start_game = input().title()
+else:
+    print('Enter In Valid Directions To Navigate Between Rooms')
+    print('---------------------------------------')
+
+in_game = True
+while in_game:
+    player_action = input(f"You're in the {current_room} now. \nEnter a Direction (North, South, East, West) to move, or type 'get item' to pick something up, or 'Exit' to quit:\n").title()
+    print('----------------------------------------\n')
+
+    # Exit condition
+    if player_action == 'Exit':
+        current_room = 'Exit'
+        print("Thanks for playing!")
+        in_game = False
+
+    # Get item logic
+    elif player_action.startswith('Get'):
+        requested_item = player_action[4:].strip()  # Extract item name
+        if 'item' in rooms[current_room] and rooms[current_room]['item'].lower() == requested_item.lower():
+            if requested_item not in inventory:
+                inventory.append(requested_item)
+                print(f"{requested_item} has been added to the Inventory.")
+                player_status()
+                del rooms[current_room]['item']
+
+                # Win by collecting all 6 items collected
+                if len(inventory) == 6:
+                    print("Congratulations! You've collected all items and sacred artifacts.")
+                    print("You have evaded Victor Malvado and saved the world.")
+                    print("Thanks for playing!")
+                    in_game = False
+            else:
+                print("This item is already in your inventory.")
+        else:
+            print("There is no item here")
+
+    # Move between rooms statements
+    elif player_action in ['North', 'East', 'West', 'South'] and player_action in rooms[current_room]:
+        current_room = rooms[current_room][player_action]
+        player_status()
+
+        if 'item' in rooms[current_room]:
+            print(f"You see a {rooms[current_room]['item']} here.")
+
+    # Invalid direction (not North, South, East, West)
+    elif player_action not in ['North', 'East', 'West', 'South', 'Exit'] and not player_action.startswith('Get'):
+        print("Invalid Direction, Please try again")
+
+    # not valid direction from current_room check
+    else:
+        print("Unable to go this way from here\n")
+        print('----------------------------------------')
+
+    # Lose condition entered villain room
+    if current_room == 'The Hall of Chains' and len(inventory) < 6:
+        print("Victor Malvado has captured you before you collected all your items and sacred artifacts.")
+        print("Game Over.")
+        print("Thanks for playing!")
+        in_game = False
